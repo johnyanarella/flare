@@ -2,6 +2,7 @@ package flare.vis.operator.layout
 {
 	import flare.scale.ScaleType;
 	import flare.util.Property;
+	import flare.vis.Visualization;
 	import flare.vis.axis.CartesianAxes;
 	import flare.vis.data.Data;
 	import flare.vis.data.DataSprite;
@@ -99,7 +100,7 @@ package flare.vis.operator.layout
 			_xBinding.data = visualization.data;
 			_yBinding.data = visualization.data;
 			
-			var axes:CartesianAxes = super.xyAxes;
+			var axes:CartesianAxes = xyAxes;
 			axes.xAxis.axisScale = _xBinding;
 			axes.yAxis.axisScale = _yBinding;
 		}
@@ -110,7 +111,7 @@ package flare.vis.operator.layout
 			_xField = Property.$(_xBinding.property);
 			_yField = Property.$(_yBinding.property);
 			
-			var axes:CartesianAxes = super.xyAxes;
+			var axes:CartesianAxes = xyAxes;
 			_xBinding.updateBinding(); axes.xAxis.axisScale = _xBinding;
 			_yBinding.updateBinding(); axes.yAxis.axisScale = _yBinding;
 			
@@ -158,6 +159,22 @@ package flare.vis.operator.layout
 					}
 				}
 			});
+		}
+
+		/**
+		 * Returns the visualization's axes as a CartesianAxes instance.
+		 * Creates/modifies existing axes as needed to ensure the
+		 * presence of CartesianAxes.
+		 */
+		protected function get xyAxes():CartesianAxes
+		{
+			var vis:Visualization = visualization;
+			if (vis == null) return null;
+			
+			if ( vis.axes as CartesianAxes == null ) {
+				vis.axes = new CartesianAxes();
+			}
+			return vis.axes as CartesianAxes;
 		}
 		
 		/** @private */

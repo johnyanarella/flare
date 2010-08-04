@@ -59,7 +59,7 @@ package flare.util
 					d.stage.addEventListener(eventType, listener,
 						useCapture, priority, useWeakReference);
 					d.removeEventListener(Event.ADDED_TO_STAGE, add);
-					d.stage.invalidate();
+					// d.stage.invalidate();
 				}
 				d.addEventListener(Event.ADDED_TO_STAGE, add);
 				return add;
@@ -227,6 +227,21 @@ package flare.util
 			mat.translate(dx, dy);
 			return mat;
 		}
+
+		/**
+		 * Performs a pan (translation) on an input matrix.
+		 * The result is a transformation matrix including the translation.
+		 * @param mat an input transformation matrix
+		 * @param x the x position
+		 * @param y the y position
+		 * @return the resulting, panned transformation matrix
+		 */
+		public static function panMatrixTo(mat:Matrix, x:Number, y:Number):Matrix
+		{
+			mat.tx = -x;
+			mat.ty = -y;
+			return mat;
+		}		
 		
 		/**
 		 * Performs a zoom about a specific point on an input matrix.
@@ -245,6 +260,23 @@ package flare.util
 			mat.translate(p.x, p.y);
 			return mat;
 		}
+
+		/**
+		 * Performs a zoom about a specific point on an input matrix.
+		 * The result is a transformation matrix including the zoom.
+		 * @param mat an input transformation matrix
+		 * @param scale a scale factor specifying the zoom amount.
+		 * @param p the point about which to zoom in or out
+		 * @return the resulting, zoomed transformation matrix
+		 */
+		public static function zoomMatrixTo(mat:Matrix, scale:Number, p:Point):Matrix
+		{
+			mat.translate(-p.x, -p.y);
+			mat.a = scale;
+			mat.d = scale;
+			mat.translate(p.x, p.y);
+			return mat;
+		}		
 		
 		/**
 		 * Performs a rotation around a specific point on an input matrix.
@@ -277,6 +309,23 @@ package flare.util
 			if (vp==null) obj.transform.matrix = mat;
 			else vp.setValue(obj, "transform.matrix", mat);
 		}
+
+		/**
+		 * Pan the "camera" by the specified amount.
+		 * @param obj the display object to treat as the camera
+		 * @param x the x position, in the parent's coordinate space
+		 * @param y the y position, in the parent's coordinate space
+		 * @param vp an optional value proxy (such as a
+		 *  <code>Transitioner</code>) for storing the new transform matrix
+		 */
+		public static function panTo(obj:DisplayObject, x:Number, y:Number,
+									 vp:IValueProxy=null):void
+		{
+			var p:Point = getLocalPoint(obj, x, y);
+			var mat:Matrix = panMatrixTo(obj.transform.matrix, p.x, p.y);
+			if (vp==null) obj.transform.matrix = mat;
+			else vp.setValue(obj, "transform.matrix", mat);
+		}		
 		
 		/**
 		 * Zoom the "camera" by the specified scale factor.
@@ -298,6 +347,46 @@ package flare.util
 			var mat:Matrix = zoomMatrixBy(obj.transform.matrix, scale, p);
 			if (vp==null) obj.transform.matrix = mat;
 			else vp.setValue(obj, "transform.matrix", mat);
+		}
+
+		/**
+		 * Zoom the "camera" to the specified scale factor.
+		 * @param obj the display object to treat as the camera
+		 * @param scale a scale factor specifying the desired zoom.
+		 * @param xp the x-coordinate around which to zoom, in stage
+		 *  coordinates. If this value is <code>NaN</code>, 0 will be used.
+		 * @param yp the y-coordinate around which to zoom, in stage
+		 *  coordinates. If this value is <code>NaN</code>, 0 will be used.
+		 * @param vp an optional value proxy (such as a
+		 *  <code>Transitioner</code>) for storing the new transform matrix
+		 */
+		public static function zoomTo(obj:DisplayObject, scale:Number, 
+			xp:Number=NaN, yp:Number=NaN, vp:IValueProxy=null):void
+		{
+			var p:Point = getLocalPoint(obj, xp, yp);
+			var mat:Matrix = zoomMatrixTo(obj.transform.matrix, scale, p);
+			if (vp==null) obj.transform.matrix = mat;
+			else vp.setValue(obj, "transform.matrix", mat);
+		}
+
+		/**
+		 * Returns the current offset coordinate for the specified display object.
+		 * @param obj the display object to treat as the camera
+		 * @returns origin coordinate
+		 */
+		public static function getOffset(obj:DisplayObject):Point
+		{
+			return new Point( -obj.transform.matrix.tx, -obj.transform.matrix.ty );
+		}
+		
+		/**
+		 * Returns the current scale factor for the specified display object.
+		 * @param obj the display object to treat as the camera
+		 * @returns scale value (aka zoom level)
+		 */
+		public static function getScale(obj:DisplayObject):Number
+		{
+			return obj.transform.matrix.a;
 		}
 		
 		/**

@@ -53,7 +53,7 @@ package flare.vis.data
 		 *  be used by layout routines to expand/collapse connections. */
 		public function get expanded():Boolean { return _expanded; }
 		public function set expanded(b:Boolean):void { _expanded = b; }
-		
+
 		/** The edge connecting this node to its parent in a tree structure. */
 		public function get parentEdge():EdgeSprite { return _parentEdge; }
 		public function set parentEdge(e:EdgeSprite):void { _parentEdge = e; }

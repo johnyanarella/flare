@@ -92,7 +92,7 @@ package flare.analytics.optimization
 		private static function adjustToAxes(vis:Visualization, ar:Number):Number
 		{
 			// get axis scales for each data field
-			var axes:CartesianAxes = vis.xyAxes;
+			var axes:CartesianAxes = vis.axes as CartesianAxes;
 			var xsc:Scale = axes.xAxis.axisScale;
 			var ysc:Scale = axes.yAxis.axisScale;
 			

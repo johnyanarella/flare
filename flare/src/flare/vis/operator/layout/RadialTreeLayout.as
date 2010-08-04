@@ -82,6 +82,10 @@ package flare.vis.operator.layout
 		public function set useNodeSize(b:Boolean):void {
 			_useNodeSize = b;
 		}
+		
+		/**
+		 * Returns the maximum depth level. */
+		public function get maxDepth():Number { return _maxDepth; }
 
 		// -- Methods ---------------------------------------------------------
 
@@ -92,14 +96,17 @@ package flare.vis.operator.layout
 		 *  to maintain node ordering across spanning-tree configurations
 		 * @param autoScale flag indicating if the layout should automatically
 		 *  be scaled to fit within the layout bounds
+		 * @param useNodeSize flag indicating if the node's <code>size</code>
+		 *  property should be used to determine layout spacing.
 		 */		
 		public function RadialTreeLayout(radius:Number=DEFAULT_RADIUS,
-			sortAngles:Boolean=true, autoScale:Boolean=true)
+			sortAngles:Boolean=true, autoScale:Boolean=true, useNodeSize:Boolean=true)
 		{
 			layoutType = POLAR;
 			_radiusInc = radius;
 			_sortAngles = sortAngles;
 			_autoScale = autoScale;
+			_useNodeSize = useNodeSize;
 		}
 
 		/** @inheritDoc */
@@ -128,9 +135,13 @@ package flare.vis.operator.layout
 	        		// collapse to inner radius
 					o.radius = o.h = o.v = _radiusInc / 2;
 					o.alpha = 0;
+					o.visible = false;
 					o.mouseEnabled = false;
 					if (n.parentEdge != null)
-						_t.$(n.parentEdge).alpha = false;
+					{
+						_t.$(n.parentEdge).alpha = 0;
+						_t.$(n.parentEdge).visible = false;
+					}
             	});
 	        }
 	        
@@ -328,9 +339,12 @@ package flare.vis.operator.layout
 			o.w = aw;
 			o.u = a - aw/2;
 			o.alpha = alpha;
+			o.visible = v;
 			o.mouseEnabled = v;
-			if (n.parentEdge != null)
+			if (n.parentEdge != null) {
 				_t.$(n.parentEdge).alpha = alpha;
+				_t.$(n.parentEdge).visible = v;
+			}
 		}
 				
 		private function params(n:NodeSprite):Params

@@ -35,7 +35,7 @@ package flare.display
 	{
 		private static var __stage:Stage;
 		private static var __installed:Boolean = false;
-		private static var __dirtyList:Array = [];
+		private static var __dirtyList:Array = [];	
 		
 		/**
 		 * Installs the frame render listener on the stage.
@@ -43,7 +43,8 @@ package flare.display
 		private static function install(stage:Stage):void
 		{
 			__stage = stage;
-			__stage.addEventListener(Event.RENDER, renderDirty);
+//			__stage.addEventListener(Event.RENDER, renderDirty);
+			__stage.addEventListener(Event.ENTER_FRAME, renderDirty);
 			__installed = true;
 		}
 		
@@ -62,15 +63,17 @@ package flare.display
 				ds._dirty = CLEAN;
 				if (db) ds.render();
 			}
-
+/*
 			// We need to remove and then re-add the listeners
 			// to work around Flash Player bugs (#139381?). Ugh.
 			// TODO: it seems this is not a complete solution, as in
 			// rare cases RENDER events are still omitted.
-			if (__stage != null) {
+
+			if (__stage != null && __installed) {
 				__stage.removeEventListener(Event.RENDER, renderDirty);
 				__installed = false;
 			}
+*/
 		}
 		
 		// --------------------------------------------------------------------
@@ -101,7 +104,7 @@ package flare.display
 		{
 			if (_dirty == DIRTY) {
 				if (!__installed) install(stage);	
-				stage.invalidate();
+//				stage.invalidate();
 			}
 		}
 
@@ -118,7 +121,7 @@ package flare.display
 			__dirtyList.push(this);
 			if (stage) {	
 				if (!__installed) install(stage);
-				stage.invalidate();
+//				stage.invalidate();
 			}
 			_dirty = DIRTY;
 		}

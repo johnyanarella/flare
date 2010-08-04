@@ -2,10 +2,10 @@ package flare.vis
 {
 	import flare.animate.ISchedulable;
 	import flare.animate.Scheduler;
+	import flare.animate.TransitionEvent;
 	import flare.animate.Transitioner;
 	import flare.util.Displays;
 	import flare.vis.axis.Axes;
-	import flare.vis.axis.CartesianAxes;
 	import flare.vis.controls.ControlList;
 	import flare.vis.data.Data;
 	import flare.vis.data.Tree;
@@ -63,18 +63,21 @@ package flare.vis
 		
 		private var _bounds:Rectangle = new Rectangle(0,0,500,500);
 		
-		private var _layers:Sprite; // sprite for all layers in visualization
-		private var _marks:Sprite;  // sprite for all visualized data items
-		private var _labels:Sprite; // (optional) sprite for labels
-		private var _axes:Axes;     // (optional) axes, lines, and axis labels
+		private var _layers:Sprite;           // sprite for all layers in visualization
+		private var _marks:Sprite;            // sprite for all visualized data items
+		private var _labels:Sprite;           // (optional) sprite for labels
+		private var _axes:Axes;               // (optional) axes, lines, and axis labels
 		
-		private var _data:Data;     // data structure holding visualized data
+		private var _data:Data;               // data structure holding visualized data
+		
+		private var _dataItemsAdded:Array;    // data sprites added since last update()
+		private var _dataItemsRemoved:Array;  // data sprites removed since last update()
 		
 		private var _ops:Object;              // map of all named operators
 		private var _operators:OperatorList;  // the "main" operator list
 		private var _controls:ControlList;    // interactive controls
-		private var _rec:ISchedulable; // for running continuous updates
-		
+		private var _rec:ISchedulable;        // for running continuous updates
+
 		/** An object storing extra properties for the visualziation. */
 		public var props:Object = {};
 		
@@ -85,7 +88,7 @@ package flare.vis
 		public function get bounds():Rectangle { return _bounds; }
 		public function set bounds(r:Rectangle):void {
 			_bounds = r;
-			if (stage) stage.invalidate();
+			// if (stage) stage.invalidate();
 		}
 		
 		/** Container sprite holding each layer in the visualization. */
@@ -120,10 +123,6 @@ package flare.vis
 				_layers.addChildAt(_axes, 0);
 			}
 		}
-		/** The axes as an x-y <code>CartesianAxes</code> instance. Returns
-		 *  null if <code>axes</code> is null or not a cartesian axes instance.
-		 */
-		public function get xyAxes():CartesianAxes { return _axes as CartesianAxes; }
 		
 		/** The visual data elements in this visualization. */
 		public function get data():Data { return _data; }
@@ -146,6 +145,12 @@ package flare.vis
 			}
 		}
 
+		/** Data Sprites added since the last update(). */
+		public function get dataItemsAdded():Array { return _dataItemsAdded; }
+		
+		/** Data Sprites removed since the last update(). */
+		public function get dataItemsRemoved():Array { return _dataItemsRemoved; }
+		
 		/** The operator list for defining the visual encodings. */
 		public function get operators():OperatorList { return _operators; }
 		
@@ -193,8 +198,8 @@ package flare.vis
 			_controls = new ControlList();
 			_controls.visualization = this;
 			
-			Displays.addStageListener(this, Event.RENDER,
-				setHitArea, false, int.MIN_VALUE+1);
+			// Displays.addStageListener(this, Event.RENDER, setHitArea, false, int.MIN_VALUE+1);
+			Displays.addStageListener(this, Event.ENTER_FRAME, setHitArea, false, int.MIN_VALUE+1);
 		}
 		
 		/**
@@ -235,6 +240,9 @@ package flare.vis
 			}
 			if (_axes != null) _axes.update(trans);
 			fireEvent(VisualizationEvent.UPDATE, trans, operators);
+			
+			trans.addEventListener(TransitionEvent.END, updateTransitionEnded);
+			
 			return trans;
 		}
 		
@@ -388,6 +396,7 @@ package flare.vis
 			hit.graphics.clear();
 			hit.graphics.beginFill(0xffffff, 1);
 			hit.graphics.drawRect(x1, y1, x2-x1, y2-y1);
+			hit.graphics.endFill();
 			hitArea = hit;
 		}
 
@@ -405,6 +414,22 @@ package flare.vis
 				dispatchEvent(new VisualizationEvent(type, t, params));
 			}
 		}
+
+		/**
+		 * Transition listener invoked when update() transition has ended.
+		 * @param evt the transition event.
+		 */
+		protected function updateTransitionEnded(evt:TransitionEvent):void
+		{
+			evt.target.removeEventListener(TransitionEvent.END, updateTransitionEnded);
+			
+			for each (var d:DisplayObject in _dataItemsRemoved) {
+				_marks.removeChild(d);
+			}
+			
+			_dataItemsAdded   = null;
+			_dataItemsRemoved = null;
+		}
 		
 		/**
 		 * Data listener invoked when new items are added to this
@@ -413,12 +438,18 @@ package flare.vis
 		 */
 		protected function dataAdded(evt:DataEvent):void
 		{
+			_dataItemsAdded ||= new Array();
+
 			if (evt.node) {
-				for each (var d:DisplayObject in evt.items)
+				for each (var d:DisplayObject in evt.items) {
 					_marks.addChild(d);
+					_dataItemsAdded.push(d);
+				}
 			} else {
-				for each (d in evt.items)
+				for each (d in evt.items) {
 					_marks.addChildAt(d, 0);
+					_dataItemsAdded.push(d);
+				}
 			}
 		}
 		
@@ -429,8 +460,11 @@ package flare.vis
 		 */
 		protected function dataRemoved(evt:DataEvent):void
 		{
-			for each (var d:DisplayObject in evt.items)
-				_marks.removeChild(d);
+			_dataItemsRemoved ||= new Array();
+			
+			for each (var d:DisplayObject in evt.items) {
+				_dataItemsRemoved.push(d);
+			}
 		}
 
 	} // end of class Visualization

@@ -17,7 +17,7 @@ package flare.display
 	 * rotation. By using a TextSprite in BITMAP mode, the text is rendered
 	 * out to a bitmap which can then be alpha blended.
 	 */
-	public class TextSprite extends DirtySprite
+	public class TextSprite extends DisplaySprite
 	{
 		// vertical anchors
 		/**
@@ -306,10 +306,15 @@ package flare.display
 		/** @inheritDoc */
 		public override function render():void
 		{
+			graphics.clear();
+			
 			if (_mode == BITMAP) {
 				rasterize();
 			}
+			
 			layout();
+			
+			renderBackground();
 		}
 		
 		/** @private */

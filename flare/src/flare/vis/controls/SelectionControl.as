@@ -18,7 +18,7 @@ package flare.vis.controls
 	
 	/**
 	 * Interactive control for selecting a group of objects by "rubber-banding"
-	 * them with a rectangular section region.
+	 * them with a selection rectangle.
 	 */
 	public class SelectionControl extends Control
 	{

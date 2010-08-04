@@ -9,6 +9,7 @@ package flare.vis.operator.layout
 	import flare.util.Maths;
 	import flare.util.Orientation;
 	import flare.util.Stats;
+	import flare.vis.Visualization;
 	import flare.vis.axis.CartesianAxes;
 	import flare.vis.data.NodeSprite;
 	
@@ -119,6 +120,22 @@ package flare.vis.operator.layout
 		}
 		
 		/**
+		 * Returns the visualization's axes as a CartesianAxes instance.
+		 * Creates/modifies existing axes as needed to ensure the
+		 * presence of CartesianAxes.
+		 */
+		protected function get xyAxes():CartesianAxes
+		{
+			var vis:Visualization = visualization;
+			if (vis == null) return null;
+			
+			if ( vis.axes as CartesianAxes == null ) {
+				vis.axes = new CartesianAxes();
+			}
+			return vis.axes as CartesianAxes;
+		}
+		
+		/**
 		 * Initializes the axes prior to layout.
 		 */
 		protected function initializeAxes():void
@@ -157,7 +174,7 @@ package flare.vis.operator.layout
 	        initializeAxes();
 	        
 	        // initialize current polygon
-	        var axes:CartesianAxes = super.xyAxes;
+	        var axes:CartesianAxes = xyAxes;
 	        var scale:Scale = (_horiz ? axes.yAxis : axes.xAxis).axisScale;
 	        var xx:Number;
 	        for (var j:uint=0; j<len; ++j) {

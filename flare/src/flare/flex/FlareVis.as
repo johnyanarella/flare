@@ -4,7 +4,6 @@ package flare.flex
 	import flare.display.DirtySprite;
 	import flare.vis.Visualization;
 	import flare.vis.axis.Axes;
-	import flare.vis.axis.CartesianAxes;
 	import flare.vis.data.Data;
 	
 	import mx.containers.Canvas;
@@ -56,9 +55,6 @@ package flare.flex
 		
 		/** Returns the axes for the backing visualization instance. */
 		public function get axes():Axes { return _vis.axes; }
-		
-		/** Returns the CartesianAxes for the backing visualization instance. */
-		public function get xyAxes():CartesianAxes { return _vis.xyAxes; }
 		
 		/** Returns the backing Flare visualization instance. */
 		public function get visualization():Visualization {

@@ -35,6 +35,8 @@ package flare.vis.data
 		
 		/** The renderer for drawing this DataSprite. */
 		protected var _renderer:IRenderer = ShapeRenderer.instance;
+		/** Selection state for this DataSprite. */
+		protected var _selected:Boolean = false;
 		/** Object storing backing data values. */
 		protected var _data:Object = {};
 		/** Object for attaching additional properties to this sprite. */
@@ -74,6 +76,11 @@ package flare.vis.data
 		/** The renderer for drawing this DataSprite. */
 		public function get renderer():IRenderer { return _renderer; }
 		public function set renderer(r:IRenderer):void { _renderer = r; dirty(); }
+		
+		/** Flag indicating if this node is currently selected. This flag can
+		 *  be used by renderers to display selection state. */
+		public function get selected():Boolean { return _selected; }
+		public function set selected(b:Boolean):void { _selected = b; }	
 		
 		/** Object storing backing data values. */
 		public function get data():Object { return _data; }

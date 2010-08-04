@@ -320,13 +320,14 @@ package flare.vis.operator.layout
 		private function setVisibility(n:NodeSprite, o:Object, visible:Boolean):void
 		{
     		o.alpha = visible ? 1.0 : 0.0;
+			o.visible = visible;
     		o.mouseEnabled = visible;
     		if (n.parentEdge != null) {
     			o = _t.$(n.parentEdge);
     			o.alpha = visible ? 1.0 : 0.0;
+				o.visible = visible;
     			o.mouseEnabled = visible;
     		}
-
 		}
 		
 		private function setSizes(n:NodeSprite):void

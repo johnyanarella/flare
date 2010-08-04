@@ -359,8 +359,8 @@ package flare.vis.data
 		protected function newNode(data:Object):NodeSprite
 		{
 			var ns:NodeSprite = new NodeSprite();
-			_nodes.applyDefaults(ns);
 			if (data != null) { ns.data = data; }
+			_nodes.applyDefaults(ns);
 			return ns;
 		}
 		
@@ -377,8 +377,8 @@ package flare.vis.data
 								   d:Boolean, data:Object):EdgeSprite
 		{
 			var es:EdgeSprite = new EdgeSprite(s,t,d);
-			_edges.applyDefaults(es);
 			if (data != null) { es.data = data; }
+			_edges.applyDefaults(es);
 			return es;
 		}
 		

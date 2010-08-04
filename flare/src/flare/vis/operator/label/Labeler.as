@@ -2,6 +2,8 @@ package flare.vis.operator.label
 {
 	import flare.animate.Transitioner;
 	import flare.display.TextSprite;
+	import flare.display.render.BackgroundRenderer;
+	import flare.display.render.IBackgroundRenderer;
 	import flare.util.Filter;
 	import flare.util.IEvaluable;
 	import flare.util.Property;
@@ -11,6 +13,8 @@ package flare.vis.operator.label
 	import flare.vis.operator.Operator;
 	
 	import flash.display.Sprite;
+	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.text.TextFormat;
 
 	/**
@@ -95,7 +99,7 @@ package flare.vis.operator.label
 		 *  to false then the label is recalculated at each update. */
 		public function get cacheText():Boolean { return _cacheText; }
 		public function set cacheText(c:Boolean):void { _cacheText = c; }
-
+		
 		/** A sprite containing the labels, if a layer policy is used. */
 		public function get labels():Sprite { return _labels; }
 		
@@ -122,6 +126,10 @@ package flare.vis.operator.label
 		public var xOffset:Number = 0;
 		/** The default <code>y</code> value for labels. */
 		public var yOffset:Number = 0;
+		/** Background renderer to apply to TextSprites created by this Labeler. */
+		public var backgroundRenderer:IBackgroundRenderer = BackgroundRenderer.instance;
+		/** MouseEvent.CLICK handler */
+		public var clickHandler:Function;
 		
 		// --------------------------------------------------------------------
 		
@@ -246,20 +254,26 @@ package flare.vis.operator.label
 			} else if (!label) {
 				label = new TextSprite("", null, textMode);
 				label.text = getLabelText(d);
-				label.visible = visible;
+				label.visible = visible && label.text;
 				label.applyFormat(textFormat);
 				
 				_access.setValue(d, label);
 				if (_policy == LAYER) {
 					_labels.addChild(label);
+					
 					label.x = d.x + xOffset;
 					label.y = d.y + yOffset;
+					
+					label.addEventListener(MouseEvent.CLICK, onMouseClick, false, 0, true);
 				} else {
 					d.addChild(label);
+					
 					label.mouseEnabled = false;
 					label.mouseChildren = false;
 					label.x = xOffset;
 					label.y = yOffset;
+					
+					d.addEventListener(MouseEvent.CLICK, onMouseClick, false, 0, true);
 				}
 			} else if (label && !cacheText) {
 				var o:Object = _t.$(label);
@@ -268,7 +282,31 @@ package flare.vis.operator.label
 			label.textMode = textMode;
 			label.horizontalAnchor = horizontalAnchor;
 			label.verticalAnchor = verticalAnchor;
+			label.backgroundRenderer = backgroundRenderer;
+			
 			return label;
+		}
+		
+		protected function onMouseClick( event:MouseEvent ):void
+		{
+			if ( event.target is TextSprite )
+			{
+				if ( clickHandler != null )
+					clickHandler( event.target );
+			}
+			if ( event.target is DataSprite )
+			{
+				if ( clickHandler != null )
+				{
+					var label:TextSprite = _access.getValue( event.target );
+
+					if ( label != null )
+					{
+						if ( label.hitTestPoint( event.stageX, event.stageY ) )
+							clickHandler( label );
+					}
+				}
+			}
 		}
 		
 	} // end of class Labeler

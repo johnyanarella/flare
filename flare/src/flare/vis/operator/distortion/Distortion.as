@@ -80,7 +80,7 @@ package flare.vis.operator.distortion
 			visualization.data.visit(distort, Data.NODES);
 			_t = null;
 			
-			if (distortAxes && visualization.xyAxes)
+			if (distortAxes && visualization.axes as CartesianAxes)
 				visualization.addEventListener(
 					VisualizationEvent.UPDATE, axesDistort);
 		}
@@ -160,7 +160,7 @@ package flare.vis.operator.distortion
 			_t = evt.transitioner;
 			_t = (_t==null ? Transitioner.DEFAULT : _t);
 			
-			var axes:CartesianAxes = visualization.xyAxes;
+			var axes:CartesianAxes = visualization.axes as CartesianAxes;
 			if (axes != null) {
 				distortAxis(axes.xAxis, true, false);
 				distortAxis(axes.yAxis, false, true);

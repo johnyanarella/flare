@@ -89,7 +89,7 @@ package flare.vis.operator.layout
 		/** The layout root, the root node for tree layouts. */
 		public function get layoutRoot():DataSprite {
 			if (_root != null) return _root;
-			if (visualization != null) {
+			if (visualization != null && visualization.data != null && visualization.data.tree != null) {
 				return visualization.data.tree.root;
 			}
 			return null;
@@ -103,7 +103,6 @@ package flare.vis.operator.layout
 		public override function operate(t:Transitioner=null):void
 		{
 			_t = (t ? t : Transitioner.DEFAULT);
-			adjustAxes();
 			layout();
 			_t = null;
 		}
@@ -116,16 +115,6 @@ package flare.vis.operator.layout
 		protected function layout():void
 		{
 			// sub-classes should override
-		}
-		
-		/** @private */
-		protected function adjustAxes():void
-		{
-			if (layoutType == CARTESIAN) {
-				showAxes(_t);
-			} else {
-				hideAxes(_t);
-			}
 		}
 		
 		/**
@@ -166,22 +155,6 @@ package flare.vis.operator.layout
 				t.$(axes).visible = false;
 			}
 			return t;
-		}
-		
-		/**
-		 * Returns the visualization's axes as a CartesianAxes instance.
-		 * Creates/modifies existing axes as needed to ensure the
-		 * presence of CartesianAxes.
-		 */
-		protected function get xyAxes():CartesianAxes
-		{
-			var vis:Visualization = visualization;
-			if (vis == null) return null;
-			
-			if (vis.xyAxes == null) {
-				vis.axes = new CartesianAxes();
-			}
-			return vis.xyAxes;
 		}
 		
 		/**
